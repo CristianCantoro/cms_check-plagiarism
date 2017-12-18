@@ -38,3 +38,11 @@ Assumiamo che la cartella `allsrc`, contente i sorgenti estratti da CMS, sia nel
    c. i risultati della similirità tra utenti diversi calcolati da JPLAG vengono listati dallo script `list_groups.sh`
 
 Il risulato finale è salvato come `plagiarism_report.jplag.txt`
+
+## AUTORI
+
+Questi script sono stati scritti da [Cristian Consonni](https://disi.unitn.it/~consonni/) e [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) durante il loro dottorato presso [UniTN](https://www.unitn.it).
+
+In particolare:
+* `check_plagiarism.sh` e `list_groups.sh` sono stati scritti da Cristian Consonni.
+* `allpairs.rb`, `clustering.rb` e `tojplag.sh` sono stati scritti da Alessio Guerrieri.

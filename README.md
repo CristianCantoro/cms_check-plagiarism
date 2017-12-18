@@ -58,3 +58,11 @@ We assume that the folder `allsrc`, containing all source files submitted to CMS
    c. the results of the similarity check performed by JPLAG between different users are listed by `list_groups.sh`
 
 The final result is saved as `plagiarism_report.jplag.txt`
+
+## AUTHORS
+
+These scripts have been written by [Cristian Consonni](https://disi.unitn.it/~consonni/) and [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) at .
+
+More specifically:
+* `check_plagiarism.sh` and `list_groups.sh` have been written by Cristian Consonni.
+* `allpairs.rb`, `clustering.rb`, and `tojplag.sh` have been written by Alessio Guerrieri.
