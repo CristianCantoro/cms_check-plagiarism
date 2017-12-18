@@ -3,4 +3,4 @@ allsrc/
 results/
 tojplag/
 check_plagiarism.*/
-plagiarism_report.txt
+plagiarism_report.*.txt
