@@ -54,11 +54,7 @@ We assume that the folder `allsrc`, containing all source files submitted to CMS
 
 2. A selection of source files is checked using JPLAG:
    a. the script `tojplag.sh` select some source files (performing a clustering for the files submitted by each user with the script `clustering.rb`). Files are saved in the folfer `tojplag/`.
-   b. JPLAG is executed on the `tojplag/` folder with the following parameters:
-```
-   java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag
-```
-      intermediate results are written in `jplag.log`.
+   b. JPLAG is executed on the `tojplag/` folder with the following parameters: `java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag`. Intermediate results are written in `jplag.log`.
    c. the results of the similarity check performed by JPLAG between different users are listed by `list_groups.sh`
 
 The final result is saved as `plagiarism_report.jplag.txt`
