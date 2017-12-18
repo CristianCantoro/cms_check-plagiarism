@@ -1,5 +1,7 @@
 # (IT) Controllo copiature per CMS
 
+Una collezione di script per il controllo delle copiature per i contest di [CMS](https://github.com/cms-dev/cms).
+
 ## Utilizzo
 
 Per fare il controllo copiature basta fare:
@@ -26,17 +28,17 @@ Questo script ha le seguenti dipendenze:
 
 ## Procedimento dettagliato
 
-Assumo che la cartella `allsrc`, contente i sorgenti estratti da CMS, sia nella cartella corrente. Gli output intermedi prodotti da questo script vengono salvato in una cartella che viene creata dallo script stesso.
+Assumiamo che la cartella `allsrc`, contente i sorgenti estratti da CMS, sia nella cartella corrente. Gli output intermedi prodotti da questo script vengono salvato in una cartella temporanea che viene creata da `check_plagiarism.ch`.
 
-1. Si controllano tutte le coppie di sorgenti con Sherlock con lo script `allpairs.rb`, l'output viene scritto in `allpairs.out`.
+1. Si controllano tutte le coppie di sorgenti con Sherlock con lo script `allpairs.rb`, l'output viene scritto in `allpairs.out`. Il risultato è salvato come `plagiarism_report.sherlock.txt`
 
 2. Si controlla una selezione dei sorgenti con JPLAG:
-   a. lo script `tojplag.sh` seleziona un po' di sorgenti (facendo clustering con lo script `clustering.rb`) e li mette nella cartella `tojplag/` (che crea da solo)
-   b. viene eseguito JPLAG sulla cartella `tojplag/`
+   a. lo script `tojplag.sh` seleziona alcuni sorgenti (facendo clustering dei file sorgente di ogni utente con lo script `clustering.rb`). I file selezionati vengono copiati nella cartella `tojplag/`
+   b. viene eseguito JPLAG sulla cartella `tojplag/` con le seguenti opzioni:
 ```
-   java -jar jplag.jar -m 100 -l c/c++ -r results tojplag
+   java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag
 ```
       i risultati intermedi vengono scritti in `jplag.log`.
-   c. i risultati della similirità tra gruppi diversi calcolati da JPLAG vengono listati dallo script `list_groups.sh`
+   c. i risultati della similirità tra utenti diversi calcolati da JPLAG vengono listati dallo script `list_groups.sh`
 
-Il risulato finale è salvato come `plagiarism_report.txt`
+Il risulato finale è salvato come `plagiarism_report.jplag.txt`
