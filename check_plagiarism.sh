@@ -212,7 +212,7 @@ grep 'Comparing' "$tempdir/jplag.log" > "$tempdir/jplag.clean.log"
 "$SCRIPTDIR/list_groups.sh" "$tempdir/jplag.clean.log" > "$tempdir/jplag.out"
 )
 sort -t':' -k2 -V  -r "$tempdir/jplag.out" > "$tempdir/jplag.out.sorted"
-cp "$tempdir/jplag.out.sorted" > "$SOURCEDIR/plagiarism_report.jplag.txt"
+cp "$tempdir/jplag.out.sorted" "$SOURCEDIR/plagiarism_report.jplag.txt"
 if $verbose; then
   echo "  done -> $tempdir_name/jplag.out"
 fi
