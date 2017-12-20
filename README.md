@@ -62,7 +62,7 @@ We assume that the folder `allsrc`, containing all source files submitted to CMS
 
 ## AUTHORS
 
-These scripts have been written by [Cristian Consonni](https://disi.unitn.it/~consonni/) and [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) at the [University of Trento](https://www.unitn.it/).
+These scripts have been written by [Cristian Consonni](https://disi.unitn.it/~consonni/) and [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) while at the [University of Trento](https://www.unitn.it/).
 
 More specifically:
 * `check_plagiarism.sh` and `list_groups.sh` have been written by Cristian Consonni.

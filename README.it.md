@@ -33,11 +33,12 @@ Assumiamo che la cartella `allsrc`, contente i sorgenti estratti da CMS, sia nel
 1. Si controllano tutte le coppie di sorgenti con Sherlock con lo script `allpairs.rb`, l'output viene scritto in `allpairs.out`. Il risultato è salvato come `plagiarism_report.sherlock.txt`
 
 2. Si controlla una selezione dei sorgenti con JPLAG:
-   a. lo script `tojplag.sh` seleziona alcuni sorgenti (facendo clustering dei file sorgente di ogni utente con lo script `clustering.rb`). I file selezionati vengono copiati nella cartella `tojplag/`
-   b. viene eseguito JPLAG sulla cartella `tojplag/` con le seguenti opzioni: `java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag`. I risultati intermedi vengono scritti in `jplag.log`.
-   c. i risultati della similirità tra utenti diversi calcolati da JPLAG vengono listati dallo script `list_groups.sh`
 
-Il risulato finale è salvato come `plagiarism_report.jplag.txt`
+   a. lo script `tojplag.sh` seleziona alcuni sorgenti (facendo clustering dei file sorgente di ogni utente con lo script `clustering.rb`). I file selezionati vengono copiati nella cartella `tojplag/`
+
+   b. viene eseguito JPLAG sulla cartella `tojplag/` con le seguenti opzioni: `java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag`. I risultati intermedi vengono scritti in `jplag.log`.
+
+   c. i risultati della similirità tra utenti diversi calcolati da JPLAG vengono listati dallo script `list_groups.sh`. Il risulato finale è salvato come `plagiarism_report.jplag.txt`
 
 ## AUTORI
 
