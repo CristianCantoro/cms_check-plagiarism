@@ -53,15 +53,16 @@ We assume that the folder `allsrc`, containing all source files submitted to CMS
 1. All pairs of source files are checked against each other with sherlock using the script `allpairs.rb`, the output is saved as `allpairs.out`. The final result is saved as `plagiarism_report.sherlock.txt`
 
 2. A selection of source files is checked using JPLAG:
-   a. the script `tojplag.sh` select some source files (performing a clustering for the files submitted by each user with the script `clustering.rb`). Files are saved in the folfer `tojplag/`.
-   b. JPLAG is executed on the `tojplag/` folder with the following parameters: `java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag`. Intermediate results are written in `jplag.log`.
-   c. the results of the similarity check performed by JPLAG between different users are listed by `list_groups.sh`
 
-The final result is saved as `plagiarism_report.jplag.txt`
+   a. the script `tojplag.sh` select some source files (performing a clustering for the files submitted by each user with the script `clustering.rb`). Files are saved in the folfer `tojplag/`.
+
+   b. JPLAG is executed on the `tojplag/` folder with the following parameters: `java -jar jplag.jar -m 1000 -l c/c++ -r results tojplag`. Intermediate results are written in `jplag.log`.
+
+   c. the results of the similarity check performed by JPLAG between different users are listed by `list_groups.sh`. The final result is saved as `plagiarism_report.jplag.txt`.
 
 ## AUTHORS
 
-These scripts have been written by [Cristian Consonni](https://disi.unitn.it/~consonni/) and [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) at .
+These scripts have been written by [Cristian Consonni](https://disi.unitn.it/~consonni/) and [Alessio Guerrieri](http://www.science.unitn.it/~guerrieri/main.html) at the [University of Trento](https://www.unitn.it/).
 
 More specifically:
 * `check_plagiarism.sh` and `list_groups.sh` have been written by Cristian Consonni.
