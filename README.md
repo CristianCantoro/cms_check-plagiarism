@@ -41,7 +41,7 @@ This script has the following dependencies:
     download at: https://github.com/docopt/docopts
 
   * sherlock
-    download at: http://www.cs.usyd.edu.au/~scilect/sherlock/
+    download at: http://web.it.usyd.edu.au/~scilect/sherlock/
 
   * JPLAG, `v2.11.X`
     download the jar with dependencies at: https://github.com/jplag/jplag

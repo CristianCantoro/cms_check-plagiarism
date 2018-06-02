@@ -21,7 +21,7 @@ Questo script ha le seguenti dipendenze:
     scaricabile da: https://github.com/docopt/docopts
 
   * sherlock
-    scaricabile da: http://www.cs.usyd.edu.au/~scilect/sherlock/
+    scaricabile da: http://web.it.usyd.edu.au/~scilect/sherlock/
 
   * JPLAG, `v2.11.X`
     scaricare il jar con le dipendenze da: https://github.com/jplag/jplag
