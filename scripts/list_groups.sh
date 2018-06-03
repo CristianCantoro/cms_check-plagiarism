@@ -17,9 +17,10 @@ fi
 
 function get_group_data() {
     local d3='[[:digit:]]{1,3}'
+    local dp='[[:digit:]]+'
     while read -r groupinfo; do
         echo "$groupinfo" | 
-            sed -E "s#sub($d3)_($d3)_($d3)\\.($d3)_\\.cpp:?#\\1 \\2 \\3.\\4#"
+            sed -E "s#sub($d3)_($d3)_($d3)\\.($dp)_\\.cpp:?#\\1 \\2 \\3.\\4#"
     done
 }
 
