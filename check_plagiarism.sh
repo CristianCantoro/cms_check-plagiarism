@@ -25,7 +25,7 @@ jplag=false
 sherlock=false
 verbose=false
 JPLAG_DEFAULT_JAR="/opt/jplag/jplag.jar"
-SHERLOCK_DEFAULT_BIN="$(which sherlock)"
+SHERLOCK_DEFAULT_BIN="$(command -v sherlock)"
 
 read -rd '' docstring <<EOF
 Usage:
@@ -40,7 +40,7 @@ Usage:
     --jplag JPLAG_JAR             Path to JPLAG's JAR (w/ deps)
                                   [default: /opt/jplag/jplag.jar]
     --sherlock SHERLOCK_BIN       Path to sherlock's binary
-                                  [default: $(which sherlock)]
+                                  [default: $(command -v sherlock)]
     --man                         Show an extended help message.
     -v, --verbose                 Generate verbose output.
     --version                     Print version and copyright information.
@@ -66,7 +66,7 @@ fi
 #################### Utils
 if $debug; then
   echodebug() {
-    echo -en "[$(date '+%F_%k:%M:%S')][debug]\\t"
+    echo -en "[$(date '+%F %k:%M:%S')][debug]\\t"
     echo "$@" 1>&2
   }
 else
@@ -79,7 +79,7 @@ fi
 
 if $verbose; then
   echoverbose() {
-    echo -en "[$(date '+%F_%k:%M:%S')][verbose]\\t"
+    echo -en "[$(date '+%F %k:%M:%S')][verbose]\\t"
     echo "$@" 1>&2
   }
 else
@@ -139,12 +139,12 @@ if $man; then
 fi
 
 JPLAG_JAR="$JPLAG_DEFAULT_JAR"
-if [ ! -z "$jplag" ]; then
+if [ -n "$jplag" ]; then
   JPLAG_JAR="$jplag"
 fi
 
 SHERLOCK_BIN="$SHERLOCK_DEFAULT_BIN"
-if [ ! -z "$sherlock" ]; then
+if [ -n "$sherlock" ]; then
   SHERLOCK_BIN="$sherlock"
 fi
 
@@ -164,7 +164,7 @@ echodebug "SOURCEDIR: $SOURCEDIR"
 SCRIPTDIR="$SOURCEDIR/scripts"
 echodebug "SCRIPTDIR: $SOURCEDIR"
 
-tempdir=$(mktemp -d -p "$SOURCEDIR" -t check_plagiarism.XXXXXXXXXX)
+tempdir=$(mktemp -d -p "$SOURCEDIR" -t res.check_plagiarism.XXXXXXXXXX)
 tempdir_name="$(basename "$tempdir")"
 echoverbose "Checking plagiarism, saving results in $tempdir_name..."
 
@@ -209,7 +209,7 @@ fi
 echoverbose -n "    * 2.c: list groups produced by Jplag..."
 grep 'Comparing' "$tempdir/jplag.log" > "$tempdir/jplag.clean.log"
 ( cd "$SOURCEDIR"
-"$SCRIPTDIR/list_groups.sh" "$tempdir/jplag.clean.log" > "$tempdir/jplag.out"
+"$SCRIPTDIR/list_groups.py" "$tempdir/jplag.clean.log" > "$tempdir/jplag.out"
 )
 sort -t':' -k2 -V  -r "$tempdir/jplag.out" > "$tempdir/jplag.out.sorted"
 cp "$tempdir/jplag.out.sorted" "$SOURCEDIR/plagiarism_report.jplag.txt"
