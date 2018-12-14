@@ -1,4 +1,16 @@
 #!/usr/bin/env python
+"""
+List groups from Jplag report.
+
+Usage:
+  list_groups.py <report>
+  list_groups.py (-h | --help)
+  list_groups.py --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+"""
 import sys
 import re
 import argparse
