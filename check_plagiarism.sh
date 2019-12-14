@@ -26,11 +26,12 @@ sherlock=false
 verbose=false
 JPLAG_DEFAULT_JAR="/opt/jplag/jplag.jar"
 SHERLOCK_DEFAULT_BIN="$(command -v sherlock)"
+JAVA_EXEC="/usr/lib/jvm/java-11-oracle/bin/java"
 
 read -rd '' docstring <<EOF
 Usage:
   check_plagiarism.sh [options] [ --jplag JPLAG_JAR ]
-    [ --sherlock SHERLOCK_BIN ]
+                                [ --sherlock SHERLOCK_BIN ]
   check_plagiarism.sh ( -h | --help | --man )
   check_plagiarism.sh ( --version )
 
@@ -150,7 +151,7 @@ fi
 
 echodebug "JPLAG_JAR: $JPLAG_JAR"
 echodebug "SHERLOCK_BIN: $SHERLOCK_BIN"
-jplag_vstring=$(java -jar "$JPLAG_JAR" | grep -i "version" || false)
+jplag_vstring=$("$JAVA_EXEC" -jar "$JPLAG_JAR" | grep -i "version" || false)
 jplag_version=$(echo "$jplag_vstring" | \
                   grep -Eo "\\(Version [^\\(]+\\)" | \
                   tr -d 'Version ()')
@@ -196,7 +197,7 @@ if $verbose; then
 fi
 
 echoverbose -n "    * 2.b: checking selected sources with Jplag..."
-java -jar "$JPLAG_JAR" \
+"$JAVA_EXEC" -jar "$JPLAG_JAR" \
     -m 1000 \
     -l 'c/c++' \
     -r "$tempdir/results" \
