@@ -7,3 +7,6 @@ plagiarism_report.*.txt
 
 # ignore asd directories
 asd*/
+
+# ignore .tar files
+*.tar*
