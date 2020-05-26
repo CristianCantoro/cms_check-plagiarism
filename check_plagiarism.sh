@@ -174,7 +174,7 @@ SOURCEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echodebug "SOURCEDIR: $SOURCEDIR"
 
 SCRIPTDIR="$SOURCEDIR/scripts"
-echodebug "SCRIPTDIR: $SOURCEDIR"
+echodebug "SCRIPTDIR: $SCRIPTDIR"
 
 resdir=$(mktemp -d -p "$SOURCEDIR" -t check_plagiarism.results.XXX)
 echoverbose "Checking plagiarism, saving results in $resdir/..."
