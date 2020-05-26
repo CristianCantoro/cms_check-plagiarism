@@ -8,11 +8,11 @@
 # Dependencies:
 # * docopts v0.6.1+fix (https://github.com/docopt/docopts)
 # * sherlock (http://www.cs.usyd.edu.au/~scilect/sherlock/)
-# * JPLAG v2.11.X (https://github.com/jplag/jplag)
+# * JPLAG v2.12.X (https://github.com/jplag/jplag)
 #   (download the jar with dependencies)
 #
 # ---
-# # Copyright (c) 2016-2017 Cristian Consonni
+# # Copyright (c) 2016-2020 Cristian Consonni
 # MIT License
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
@@ -24,13 +24,15 @@ debug=false
 jplag=false
 sherlock=false
 verbose=false
-JPLAG_DEFAULT_JAR="/opt/jplag/jplag.jar"
+jexec=false
 SHERLOCK_DEFAULT_BIN="$(command -v sherlock)"
-JAVA_EXEC="/usr/lib/jvm/java-11-oracle/bin/java"
+JAVA_DEFAULT_EXEC="$(command -v java)"
+JPLAG_DEFAULT_JAR="/opt/jplag/jplag.jar"
 
 read -rd '' docstring <<EOF
 Usage:
-  check_plagiarism.sh [options] [ --jplag JPLAG_JAR ]
+  check_plagiarism.sh [options] [ --jexec JAVA_EXEC ]
+                                [ --jplag JPLAG_JAR ]
                                 [ --sherlock SHERLOCK_BIN ]
   check_plagiarism.sh ( -h | --help | --man )
   check_plagiarism.sh ( --version )
@@ -38,6 +40,8 @@ Usage:
   Options:
     -d, --debug                   Enable debug mode (implies --verbose)
     -h, --help                    Show this help message and exits.
+    --jexec JAVA_EXEC             Path to java executable
+                                  [default: $(command -v java)]
     --jplag JPLAG_JAR             Path to JPLAG's JAR (w/ deps)
                                   [default: /opt/jplag/jplag.jar]
     --sherlock SHERLOCK_BIN       Path to sherlock's binary
@@ -46,8 +50,8 @@ Usage:
     -v, --verbose                 Generate verbose output.
     --version                     Print version and copyright information.
 ----
-check_plagiarism.sh 0.1.0
-copyright (c) 2016-2017 Cristian Consonni
+check_plagiarism.sh 0.2
+copyright (c) 2016-2020 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -144,13 +148,20 @@ if [ -n "$jplag" ]; then
   JPLAG_JAR="$jplag"
 fi
 
+JAVA_EXEC="$JAVA_DEFAULT_EXEC"
+if [ -n "$jexec" ]; then
+  JAVA_EXEC="$jexec"
+fi
+
 SHERLOCK_BIN="$SHERLOCK_DEFAULT_BIN"
 if [ -n "$sherlock" ]; then
   SHERLOCK_BIN="$sherlock"
 fi
 
-echodebug "JPLAG_JAR: $JPLAG_JAR"
 echodebug "SHERLOCK_BIN: $SHERLOCK_BIN"
+echodebug "JAVA_EXEC: $JAVA_EXEC"
+echodebug "JPLAG_JAR: $JPLAG_JAR"
+
 jplag_vstring=$("$JAVA_EXEC" -jar "$JPLAG_JAR" | grep -i "version" || false)
 jplag_version=$(echo "$jplag_vstring" | \
                   grep -Eo "\\(Version [^\\(]+\\)" | \
@@ -165,9 +176,8 @@ echodebug "SOURCEDIR: $SOURCEDIR"
 SCRIPTDIR="$SOURCEDIR/scripts"
 echodebug "SCRIPTDIR: $SOURCEDIR"
 
-tempdir=$(mktemp -d -p "$SOURCEDIR" -t res.check_plagiarism.XXXXXXXXXX)
-tempdir_name="$(basename "$tempdir")"
-echoverbose "Checking plagiarism, saving results in $tempdir_name..."
+resdir=$(mktemp -d -p "$SOURCEDIR" -t check_plagiarism.results.XXX)
+echoverbose "Checking plagiarism, saving results in $resdir/..."
 
 if [ ! -d 'allsrc' ]; then 
   (>&2 echo "Error: This script assumes you have a directory called 'allsrc/'")
@@ -178,47 +188,49 @@ fi
 echoverbose -n "  * step 1: checking all pairs with Sherlock..."
 
 ( cd "$SOURCEDIR/allsrc/"
-  "$SCRIPTDIR/allpairs.rb" | sort -n -r > "$tempdir/allpairs.out"
+  "$SCRIPTDIR/allpairs.rb" | sort -n -r > "$resdir/allpairs.out"
 )
-cp "$tempdir/allpairs.out" "$SOURCEDIR/plagiarism_report.sherlock.txt"
+cp "$resdir/allpairs.out" "$resdir/plagiarism_report.sherlock.txt"
 if $verbose; then
-  echo " done -> $tempdir_name/allpairs.out"
+  echo " done -> $resdir/plagiarism_report.sherlock.txt"
 fi
 
 echoverbose "  * step 2: checking with Jplag:"
 echoverbose -n "    * 2.a: producing sources for Jplag..."
 
 ( cd "$SOURCEDIR/"
-  "$SCRIPTDIR/tojplag.sh" &> "$tempdir/tojplag.log"
-  mv "$SOURCEDIR/tojplag" "$tempdir/"
+  "$SCRIPTDIR/tojplag.sh" &> "$resdir/tojplag.log"
+  mv "$SOURCEDIR/tojplag" "$resdir/"
 )
 if $verbose; then
-  echo "  done -> $tempdir_name/tojplag/"
+  echo "  done -> $resdir/tojplag/"
 fi
 
 echoverbose -n "    * 2.b: checking selected sources with Jplag..."
 "$JAVA_EXEC" -jar "$JPLAG_JAR" \
     -m 1000 \
     -l 'c/c++' \
-    -r "$tempdir/results" \
-    "$tempdir/tojplag" \
-    > "$tempdir/jplag.log"
+    -r "$resdir/results" \
+    "$resdir/tojplag" \
+    > "$resdir/jplag.log"
 if $verbose; then
-  echo "  done -> $tempdir_name/jplag.log"
+  echo "  done -> $resdir/jplag.log"
 fi
 
 echoverbose -n "    * 2.c: list groups produced by Jplag..."
-grep 'Comparing' "$tempdir/jplag.log" > "$tempdir/jplag.clean.log"
+grep 'Comparing' "$resdir/jplag.log" > "$resdir/jplag.clean.log"
 ( cd "$SOURCEDIR"
-"$SCRIPTDIR/list_groups.py" "$tempdir/jplag.clean.log" > "$tempdir/jplag.out"
+"$SCRIPTDIR/list_groups.py" "$resdir/jplag.clean.log" > "$resdir/jplag.out"
 )
-sort -t':' -k2 -V  -r "$tempdir/jplag.out" > "$tempdir/jplag.out.sorted"
-cp "$tempdir/jplag.out.sorted" "$SOURCEDIR/plagiarism_report.jplag.txt"
+sort -t':' -k2 -V  -r "$resdir/jplag.out" > "$resdir/jplag.out.sorted"
+cp "$resdir/jplag.out.sorted" "$SOURCEDIR/plagiarism_report.jplag.txt"
 if $verbose; then
-  echo "  done -> $tempdir_name/jplag.out"
+  echo "  done -> $resdir/jplag.out"
 fi
 
 echo "Done!"
-echo "all intermediate results in $tempdir_name"
+echo "all intermediate results in $resdir"
 echo "sherlock results in: plagiarism_report.sherlock.txt"
 echo "JPLAG results in: plagiarism_report.jplag.txt"
+
+exit 0

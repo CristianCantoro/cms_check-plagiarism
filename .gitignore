@@ -2,7 +2,7 @@
 allsrc/
 results/
 tojplag/
-*.check_plagiarism*/
+check_plagiarism.results.*/
 plagiarism_report.*.txt
 
 # ignore asd directories
