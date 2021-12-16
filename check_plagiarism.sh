@@ -162,10 +162,10 @@ echodebug "SHERLOCK_BIN: $SHERLOCK_BIN"
 echodebug "JAVA_EXEC: $JAVA_EXEC"
 echodebug "JPLAG_JAR: $JPLAG_JAR"
 
-jplag_vstring=$("$JAVA_EXEC" -jar "$JPLAG_JAR" | grep -i "version" || false)
-jplag_version=$(echo "$jplag_vstring" | \
-                  grep -Eo "\\(Version [^\\(]+\\)" | \
-                  tr -d 'Version ()')
+jplag_version=$(zipgrep "Implementation-Version:" "$JPLAG_JAR" | \
+                awk -F ': ' '{print $2}' | \
+                tr -d '\r\n'
+                )
 
 echoverbose "Using JPLAG at: $JPLAG_JAR (JPLAG JAR version: $jplag_version)"
 echoverbose "Using sherlock at: $SHERLOCK_BIN"
