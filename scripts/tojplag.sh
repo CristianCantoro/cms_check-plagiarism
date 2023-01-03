@@ -9,13 +9,15 @@ if ! $SOURCED; then
   IFS=$'\n\t'
 fi
 
+scriptdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 rm -rf tojplag/
 mkdir tojplag
 
 for i in allsrc/*; do
     cd "$i"
     echo "$i"
-    for f in $(../../scripts/clustering.rb); do
+    for f in $("$scriptdir"/clustering.rb); do
       cp "$f" ../../tojplag/
     done
 
