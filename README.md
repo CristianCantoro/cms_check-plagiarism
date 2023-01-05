@@ -43,7 +43,7 @@ This script has the following dependencies:
   * sherlock
     download at: http://web.it.usyd.edu.au/~scilect/sherlock/
 
-  * JPLAG, `v2.11.X`
+  * JPLAG, `v4.1.0`
     download the jar with dependencies at: https://github.com/jplag/jplag
 
 ## How it works

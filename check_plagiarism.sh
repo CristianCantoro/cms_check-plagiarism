@@ -8,11 +8,11 @@
 # Dependencies:
 # * docopts v0.6.1+fix (https://github.com/docopt/docopts)
 # * sherlock (http://www.cs.usyd.edu.au/~scilect/sherlock/)
-# * JPLAG v2.12.X (https://github.com/jplag/jplag)
+# * JPLAG v4.1.0 (https://github.com/jplag/jplag)
 #   (download the jar with dependencies)
 #
 # ---
-# # Copyright (c) 2016-2020 Cristian Consonni
+# # Copyright (c) 2016-2022 Cristian Consonni
 # MIT License
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
@@ -50,8 +50,8 @@ Usage:
     -v, --verbose                 Generate verbose output.
     --version                     Print version and copyright information.
 ----
-check_plagiarism.sh 0.2
-copyright (c) 2016-2020 Cristian Consonni
+check_plagiarism.sh 0.3
+copyright (c) 2016-2022 Cristian Consonni
 MIT License
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -130,7 +130,7 @@ This script has the following dependencies:
   * sherlock
     download at: http://www.cs.usyd.edu.au/~scilect/sherlock/
 
-  * JPLAG, v2.11.X
+  * JPLAG, v4.1.0
     download the jar with dependencies at: https://github.com/jplag/jplag
 
 MANPAGE
@@ -162,10 +162,8 @@ echodebug "SHERLOCK_BIN: $SHERLOCK_BIN"
 echodebug "JAVA_EXEC: $JAVA_EXEC"
 echodebug "JPLAG_JAR: $JPLAG_JAR"
 
-jplag_version=$(zipgrep "Implementation-Version:" "$JPLAG_JAR" | \
-                awk -F ': ' '{print $2}' | \
-                tr -d '\r\n'
-                )
+jplag_version=$(basename "$JPLAG_JAR" | \
+  sed -r 's/jplag-([0-9]+.[0-9]+.[0-9]+)-jar-with-dependencies.jar/\1/g')
 
 echoverbose "Using JPLAG at: $JPLAG_JAR (JPLAG JAR version: $jplag_version)"
 echoverbose "Using sherlock at: $SHERLOCK_BIN"
@@ -196,41 +194,105 @@ if $verbose; then
 fi
 
 echoverbose "  * step 2: checking with Jplag:"
-echoverbose -n "    * 2.a: producing sources for Jplag..."
-
-( cd "$SOURCEDIR/"
-  "$SCRIPTDIR/tojplag.sh" &> "$resdir/tojplag.log"
-  mv "$SOURCEDIR/tojplag" "$resdir/"
-)
-if $verbose; then
-  echo "  done -> $resdir/tojplag/"
-fi
-
-echoverbose -n "    * 2.b: checking selected sources with Jplag..."
+echoverbose -n "    * 2.a: Check all sources (by group) with JPLAG ..."
+set +eo pipefail
 "$JAVA_EXEC" -jar "$JPLAG_JAR" \
-    -m 1000 \
-    -l 'c/c++' \
-    -r "$resdir/results" \
-    "$resdir/tojplag" \
-    > "$resdir/jplag.log"
+  -l 'cpp' \
+  --cluster-skip \
+  -n -1 \
+  -m 0.8 \
+  -r "$resdir/jplag_all_src" \
+  "$SOURCEDIR/allsrc" \
+    > "$resdir/jplag_all_src.log"
+set -eo pipefail
+"$SCRIPTDIR"/report_jplag.py \
+  "$resdir/jplag_all_src.log" \
+  "$resdir/jplag_all_src.zip"
 if $verbose; then
-  echo "  done -> $resdir/jplag.log"
+  echo "  done"
 fi
 
-echoverbose -n "    * 2.c: list groups produced by Jplag..."
-grep 'Comparing' "$resdir/jplag.log" > "$resdir/jplag.clean.log"
-( cd "$SOURCEDIR"
-"$SCRIPTDIR/list_groups.py" "$resdir/jplag.clean.log" > "$resdir/jplag.out"
-)
-sort -t':' -k2 -V  -r "$resdir/jplag.out" > "$resdir/jplag.out.sorted"
-cp "$resdir/jplag.out.sorted" "$SOURCEDIR/plagiarism_report.jplag.txt"
+echoverbose "    * 2.b: Check only selected sources with JPLAG ..."
+echoverbose "        - 2.b.1: Clustering sources with JPLAG ..."
+
+mkdir -p "$resdir/jplag_logs"
+mkdir -p "$resdir/jplag_clustered_by_group_src"
+mkdir -p "$resdir/jplag_clustered_all_src"
+find "$SOURCEDIR/allsrc" -mindepth 1 -type d -print0 | sort -V -z | \
+  while IFS= read -r -d '' asourcedir; do
+    dirname=$(basename "$asourcedir")
+    echodebug "dirname: $dirname"
+
+    set +eo pipefail
+    "$JAVA_EXEC" -jar "$JPLAG_JAR" \
+        -l 'cpp' \
+        -n -1 \
+        --cluster-alg AGGLOMERATIVE \
+        --cluster-metric MIN \
+        -m 0.45 \
+        -r "$resdir/jplag_logs/jplag_$dirname" \
+        "$asourcedir" \
+          > "$resdir/jplag_logs/jplag_$dirname.log"
+    set -eo pipefail
+
+    mkdir -p "$resdir/jplag_clustered_by_group_src/$dirname"
+    # Reading output of a command into an array in Bash
+    #   https://stackoverflow.com/a/32931403/2377454
+    mapfile -t sources < <( "$SCRIPTDIR"/clustering_jplag.py \
+                              "$resdir/jplag_logs/jplag_$dirname.log" \
+                              "$SOURCEDIR/allsrc/$dirname")
+    for asource in "${sources[@]}"; do
+      # echo "asource: $asource"
+      cp "$asource" "$resdir/jplag_clustered_by_group_src/$dirname"
+      cp "$asource" "$resdir/jplag_clustered_all_src"
+    done
+done
 if $verbose; then
-  echo "  done -> $resdir/jplag.out"
+  echo "  done"
 fi
+
+echoverbose -n "        - 2.b.2: Check selected sources (by group) " \
+               "with Jplag ..."
+set +eo pipefail
+"$JAVA_EXEC" -jar "$JPLAG_JAR" \
+    -l 'cpp' \
+    -n -1 \
+    -r "$resdir/jplag_clustered_by_group" \
+    "$resdir/jplag_clustered_by_group_src" \
+      > "$resdir/jplag_clustered_by_group.log"
+set -eo pipefail
+"$SCRIPTDIR"/report_jplag.py -g \
+  "$resdir/jplag_clustered_by_group.log" \
+  "$resdir/jplag_clustered_by_group.zip"
+if $verbose; then
+  echo "  done"
+fi
+
+echoverbose -n "        - 2.b.3: Check selected sources with Jplag ..."
+set +eo pipefail
+"$JAVA_EXEC" -jar "$JPLAG_JAR" \
+    -l 'cpp' \
+    -n -1 \
+    -r "$resdir/jplag_clustered_all" \
+    "$resdir/jplag_clustered_all_src" \
+      > "$resdir/jplag_clustered_all.log"
+set -eo pipefail
+"$SCRIPTDIR"/report_jplag.py \
+  "$resdir/jplag_clustered_all.log" \
+  "$resdir/jplag_clustered_all.zip"
+if $verbose; then
+  echo "  done"
+fi
+
 
 echo "Done!"
-echo "all intermediate results in $resdir"
-echo "sherlock results in: plagiarism_report.sherlock.txt"
-echo "JPLAG results in: plagiarism_report.jplag.txt"
-
+echo "1. sherlock results in:"
+echo "    - ${resdir}/plagiarism_report.sherlock.txt"
+echo "2. JPLAG results in:"
+echo "    - ${resdir}/jplag_all_src_report.csv"
+echo "    - ${resdir}/jplag_all_src_clusters_report.csv"
+echo "    - ${resdir}/jplag_clustered_by_group_report.csv"
+echo "    - ${resdir}/jplag_clustered_by_group_clusters_report.csv"
+echo "    - ${resdir}/jplag_clustered_all_report.csv"
+echo "    - ${resdir}/jplag_clustered_all_clusters_report.csv"
 exit 0

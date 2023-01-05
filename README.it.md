@@ -23,7 +23,7 @@ Questo script ha le seguenti dipendenze:
   * sherlock
     scaricabile da: http://web.it.usyd.edu.au/~scilect/sherlock/
 
-  * JPLAG, `v2.11.X`
+  * JPLAG, `v4.1.0`
     scaricare il jar con le dipendenze da: https://github.com/jplag/jplag
 
 ## Procedimento dettagliato

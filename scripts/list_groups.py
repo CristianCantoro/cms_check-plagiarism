@@ -11,8 +11,8 @@ Options:
   -h --help     Show this screen.
   --version     Show version.
 """
-import sys
 import re
+import sys
 import argparse
 
 # globals

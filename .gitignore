@@ -1,7 +1,9 @@
 # ignore directories with sources and results
 allsrc/
+allsrc*/
 results/
 tojplag/
+test/
 check_plagiarism.results.*/
 plagiarism_report.*.txt
 
