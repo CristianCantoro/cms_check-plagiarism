@@ -277,7 +277,7 @@ set +eo pipefail
     "$resdir/jplag_clustered_all_src" \
       > "$resdir/jplag_clustered_all.log"
 set -eo pipefail
-"$SCRIPTDIR"/report_jplag.py \
+"$SCRIPTDIR"/report_jplag.py -s 0.3 \
   "$resdir/jplag_clustered_all.log" \
   "$resdir/jplag_clustered_all.zip"
 if $verbose; then
