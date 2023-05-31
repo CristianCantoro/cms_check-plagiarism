@@ -35,7 +35,7 @@ MatchingGroups = namedtuple('MatchingGroups',
 # regexes
 # --- example: sub77_8_95.0_.cpp-sub81_4_75.0_.cpp.json
 FNAME_REGEX = regex.compile(
-    r'sub([0-9]+)_([0-9]+)_([0-9\.]+)_(\..+)'
+    r'sub([0-9]+)_([0-9]+)_([0-9\.]+|None)_(\..+)'
     )
 
 FNAME_SINGLESUB_REGEX = regex.compile(
@@ -146,7 +146,10 @@ def parse_name_singlesub(filename):
     name1, name2 = groups[0], groups[5] 
     gid1, gid2 = int(groups[1]), int(groups[6])
     nsub1, nsub2 = int(groups[2]), int(groups[7])
-    score1, score2 = float(groups[3]), float(groups[8])
+
+    # score can be None
+    score1 = float(groups[3]) if groups[3] != 'None' else None
+    score2 = float(groups[8]) if groups[8] != 'None' else None
     ext1, ext2 = groups[4], groups[9]
 
     comp = Comparison(Source(name1, gid1, nsub1, score1, ext1),
