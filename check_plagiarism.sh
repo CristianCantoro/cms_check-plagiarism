@@ -41,11 +41,11 @@ Usage:
     -d, --debug                   Enable debug mode (implies --verbose)
     -h, --help                    Show this help message and exits.
     --jexec JAVA_EXEC             Path to java executable
-                                  [default: $(command -v java)]
+                                  [default: $JAVA_DEFAULT_EXEC]
     --jplag JPLAG_JAR             Path to JPLAG's JAR (w/ deps)
                                   [default: /opt/jplag/jplag.jar]
     --sherlock SHERLOCK_BIN       Path to sherlock's binary
-                                  [default: $(command -v sherlock)]
+                                  [default: $SHERLOCK_DEFAULT_BIN]
     --man                         Show an extended help message.
     -v, --verbose                 Generate verbose output.
     --version                     Print version and copyright information.
